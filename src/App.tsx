@@ -8,31 +8,31 @@ import {
 import type { IndexTableRowProps, IndexTableProps } from "@shopify/polaris";
 import { Fragment } from "react";
 
-export function WithSubHeadersExample() {
-  interface Customer {
-    id: string;
-    url: string;
-    name: string;
-    location: string;
-    orders: number;
-    amountSpent: string;
-    lastOrderDate: string;
-  }
+interface Customer {
+  id: string;
+  url: string;
+  name: string;
+  location: string;
+  orders: number;
+  amountSpent: string;
+  lastOrderDate: string;
+}
 
-  interface CustomerRow extends Customer {
-    position: number;
-  }
+interface CustomerRow extends Customer {
+  position: number;
+}
 
-  interface CustomerGroup {
-    id: string;
-    position: number;
-    customers: CustomerRow[];
-  }
+interface CustomerGroup {
+  id: string;
+  position: number;
+  customers: CustomerRow[];
+}
 
-  interface Groups {
-    [key: string]: CustomerGroup;
-  }
+interface Groups {
+  [key: string]: CustomerGroup;
+}
 
+export default function App() {
   const rows = [
     {
       id: "3411",
@@ -166,13 +166,11 @@ export function WithSubHeadersExample() {
           position={position}
           selected={selected}
         >
-          <IndexTable.Cell
-            colSpan={4}
-            scope="colgroup"
-            as="th"
-            id={subheaderId}
-          >
-            {`Last order placed: ${orderDate}`}
+          <IndexTable.Cell scope="colgroup" as="th" id={subheaderId}>
+            Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+            Voluptatibus nihil tempore voluptas nobis, aperiam in. Voluptate
+            perspiciatis explicabo consequuntur modi odio labore, ad doloremque
+            ab magnam numquam, animi odit officiis?
           </IndexTable.Cell>
         </IndexTable.Row>
         {customers.map(
@@ -227,5 +225,3 @@ export function WithSubHeadersExample() {
     </Card>
   );
 }
-
-export default WithSubHeadersExample;

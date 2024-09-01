@@ -2,16 +2,17 @@ import {
   Text,
   useIndexResourceState,
   IndexTable,
-  useBreakpoints,
   Card,
 } from "@shopify/polaris";
+import { faker } from "@faker-js/faker";
 import type { IndexTableRowProps, IndexTableProps } from "@shopify/polaris";
 import { Fragment, useLayoutEffect, useRef, useState } from "react";
 import { getSubHeaderColSpan } from "./helper";
 
 import styles from "./App.module.css";
 
-interface Customer {
+interface CustomerRow {
+  position: number;
   id: string;
   url: string;
   name: string;
@@ -19,10 +20,6 @@ interface Customer {
   orders: number;
   amountSpent: string;
   lastOrderDate: string;
-}
-
-interface CustomerRow extends Customer {
-  position: number;
 }
 
 interface CustomerGroup {
@@ -41,47 +38,27 @@ export default function App() {
   const rows = [
     {
       id: "3411",
-      url: "#",
       name: "Mae Jemison",
-      location: "Decatur, USA",
-      orders: 11,
-      amountSpent: "$2,400",
       lastOrderDate: "May 31, 2023",
     },
     {
       id: "2562",
-      url: "#",
       name: "Ellen Ochoa",
-      location: "Los Angeles, USA",
-      orders: 30,
-      amountSpent: "$975",
       lastOrderDate: "May 31, 2023",
     },
     {
       id: "4102",
-      url: "#",
       name: "Colm Dillane",
-      location: "New York, USA",
-      orders: 27,
-      amountSpent: "$2885",
       lastOrderDate: "May 31, 2023",
     },
     {
       id: "2564",
-      url: "#",
       name: "Al Chemist",
-      location: "New York, USA",
-      orders: 19,
-      amountSpent: "$1,209",
       lastOrderDate: "April 4, 2023",
     },
     {
       id: "2563",
-      url: "#",
       name: "Larry June",
-      location: "San Francisco, USA",
-      orders: 22,
-      amountSpent: "$1,400",
       lastOrderDate: "March 19, 2023",
     },
   ];
@@ -102,8 +79,8 @@ export default function App() {
 
   const groupRowsByLastOrderDate = () => {
     let position = 0;
-    const groups: Groups = (rows as Customer[]).reduce(
-      (groups: Groups, customer: Customer) => {
+    const groups: Groups = (rows as CustomerRow[]).reduce(
+      (groups: Groups, customer: CustomerRow) => {
         const { lastOrderDate } = customer;
         if (!groups[lastOrderDate]) {
           groups[lastOrderDate] = {
@@ -148,7 +125,7 @@ export default function App() {
 
     if (tableContainer) {
       setSubheaderColSpan(getSubHeaderColSpan(tableContainer));
-      // resizeObserver.observe(tableContainer);
+      resizeObserver.observe(tableContainer);
     }
 
     return () => resizeObserver.disconnect();
@@ -183,6 +160,7 @@ export default function App() {
           rowType="subheader"
           selectionRange={childRowRange}
           id={subheaderId}
+          key={subheaderId}
           position={position}
           selected={selected}
         >
@@ -193,65 +171,47 @@ export default function App() {
             className={styles.subHeader}
             id={subheaderId}
           >
-            {subheaderColSpan &&
-              `Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-            Voluptatibus nihil tempore voluptas nobis, aperiam in. Voluptate
-            perspiciatis explicabo consequuntur modi odio labore, ad doloremque
-            ab magnam numquam, animi odit officiis?`}
+            {faker.lorem.words(25)}
           </IndexTable.Cell>
 
-          <IndexTable.Cell colSpan={Number.MAX_SAFE_INTEGER} />
+          <IndexTable.Cell colSpan={20} />
         </IndexTable.Row>
-        {customers.map(
-          ({ id, name, location, orders, amountSpent, position }, rowIndex) => {
-            return (
-              <IndexTable.Row
-                key={rowIndex}
-                id={id}
-                position={position}
-                selected={selectedResources.includes(id)}
+        {customers.map(({ id, name, position }, rowIndex) => {
+          return (
+            <IndexTable.Row
+              key={rowIndex}
+              id={id}
+              position={position}
+              selected={selectedResources.includes(id)}
+            >
+              <IndexTable.Cell
+                headers={`${columnHeadings[0].id} ${subheaderId}`}
               >
-                <IndexTable.Cell
-                  flush
-                  headers={`${columnHeadings[0].id} ${subheaderId}`}
-                >
-                  <Text variant="bodyMd" fontWeight="semibold" as="span">
-                    {name}
-                  </Text>
-                </IndexTable.Cell>
+                <Text variant="bodyMd" fontWeight="semibold" as="span">
+                  {name}
+                </Text>
+              </IndexTable.Cell>
 
-                <IndexTable.Cell flush>
-                  <div className={styles.cell}>
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                    Rerum quos iste ipsam, est incidunt aliquid, voluptatum sed
-                    delectus reiciendis itaque corrupti sequi magnam ab minus
-                    perferendis libero in quam nostrum. {location}
-                  </div>
-                </IndexTable.Cell>
-                <IndexTable.Cell flush>
-                  <div className={styles.cell}>
-                    <Text as="span" numeric>
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                      Rerum quos iste ipsam, est incidunt aliquid, voluptatum
-                      sed delectus reiciendis itaque corrupti sequi magnam ab
-                      minus perferendis libero in quam nostrum. {orders}
-                    </Text>
-                  </div>
-                </IndexTable.Cell>
-                <IndexTable.Cell flush>
-                  <div className={styles.cell}>
-                    <Text as="span" numeric>
-                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                      Rerum quos iste ipsam, est incidunt aliquid, voluptatum
-                      sed delectus reiciendis itaque corrupti sequi magnam ab
-                      minus perferendis libero in quam nostrum. {amountSpent}
-                    </Text>
-                  </div>
-                </IndexTable.Cell>
-              </IndexTable.Row>
-            );
-          }
-        )}
+              <IndexTable.Cell>
+                <div className={styles.cell}>{faker.lorem.words(25)}</div>
+              </IndexTable.Cell>
+              <IndexTable.Cell>
+                <div className={styles.cell}>
+                  <Text as="span" numeric>
+                    {faker.lorem.words(25)}
+                  </Text>
+                </div>
+              </IndexTable.Cell>
+              <IndexTable.Cell>
+                <div className={styles.cell}>
+                  <Text as="span" numeric>
+                    {faker.lorem.words(25)}
+                  </Text>
+                </div>
+              </IndexTable.Cell>
+            </IndexTable.Row>
+          );
+        })}
       </Fragment>
     );
   });
@@ -260,7 +220,6 @@ export default function App() {
     <Card>
       <div ref={tableContainerRef}>
         <IndexTable
-          condensed={useBreakpoints().smDown}
           onSelectionChange={handleSelectionChange}
           selectedItemsCount={
             allResourcesSelected ? "All" : selectedResources.length

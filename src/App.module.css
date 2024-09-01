@@ -1,6 +1,6 @@
 .subHeader {
   filter: none !important;
-  text-wrap: wrap !important;
+  text-wrap: wrap;
 }
 
 .cell {

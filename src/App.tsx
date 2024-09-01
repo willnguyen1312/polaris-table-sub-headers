@@ -6,7 +6,10 @@ import {
   Card,
 } from "@shopify/polaris";
 import type { IndexTableRowProps, IndexTableProps } from "@shopify/polaris";
-import { Fragment } from "react";
+import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { getSubHeaderColSpan } from "./helper";
+
+import styles from "./App.module.css";
 
 interface Customer {
   id: string;
@@ -33,6 +36,8 @@ interface Groups {
 }
 
 export default function App() {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [subheaderColSpan, setSubheaderColSpan] = useState<number>();
   const rows = [
     {
       id: "3411",
@@ -85,12 +90,10 @@ export default function App() {
     { title: "Name", id: "name" },
     { title: "Location", id: "location" },
     {
-      alignment: "end",
       id: "order-count",
       title: "Order count",
     },
     {
-      alignment: "end",
       hidden: false,
       id: "amount-spent",
       title: "Amount spent",
@@ -134,6 +137,23 @@ export default function App() {
 
   const orders = groupRowsByLastOrderDate();
 
+  useLayoutEffect(() => {
+    const tableContainer = tableContainerRef.current;
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (tableContainer) {
+        setSubheaderColSpan(getSubHeaderColSpan(tableContainer));
+      }
+    });
+
+    if (tableContainer) {
+      setSubheaderColSpan(getSubHeaderColSpan(tableContainer));
+      // resizeObserver.observe(tableContainer);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
   const rowMarkup = Object.keys(orders).map((orderDate) => {
     const { customers, position, id: subheaderId } = orders[orderDate];
     let selected: IndexTableRowProps["selected"] = false;
@@ -166,12 +186,21 @@ export default function App() {
           position={position}
           selected={selected}
         >
-          <IndexTable.Cell scope="colgroup" as="th" id={subheaderId}>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+          <IndexTable.Cell
+            colSpan={subheaderColSpan}
+            scope="colgroup"
+            as="th"
+            className={styles.subHeader}
+            id={subheaderId}
+          >
+            {subheaderColSpan &&
+              `Lorem ipsum dolor sit amet consectetur, adipisicing elit.
             Voluptatibus nihil tempore voluptas nobis, aperiam in. Voluptate
             perspiciatis explicabo consequuntur modi odio labore, ad doloremque
-            ab magnam numquam, animi odit officiis?
+            ab magnam numquam, animi odit officiis?`}
           </IndexTable.Cell>
+
+          <IndexTable.Cell colSpan={Number.MAX_SAFE_INTEGER} />
         </IndexTable.Row>
         {customers.map(
           ({ id, name, location, orders, amountSpent, position }, rowIndex) => {
@@ -183,22 +212,41 @@ export default function App() {
                 selected={selectedResources.includes(id)}
               >
                 <IndexTable.Cell
+                  flush
                   headers={`${columnHeadings[0].id} ${subheaderId}`}
                 >
                   <Text variant="bodyMd" fontWeight="semibold" as="span">
                     {name}
                   </Text>
                 </IndexTable.Cell>
-                <IndexTable.Cell>{location}</IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Text as="span" alignment="end" numeric>
-                    {orders}
-                  </Text>
+
+                <IndexTable.Cell flush>
+                  <div className={styles.cell}>
+                    Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                    Rerum quos iste ipsam, est incidunt aliquid, voluptatum sed
+                    delectus reiciendis itaque corrupti sequi magnam ab minus
+                    perferendis libero in quam nostrum. {location}
+                  </div>
                 </IndexTable.Cell>
-                <IndexTable.Cell>
-                  <Text as="span" alignment="end" numeric>
-                    {amountSpent}
-                  </Text>
+                <IndexTable.Cell flush>
+                  <div className={styles.cell}>
+                    <Text as="span" numeric>
+                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                      Rerum quos iste ipsam, est incidunt aliquid, voluptatum
+                      sed delectus reiciendis itaque corrupti sequi magnam ab
+                      minus perferendis libero in quam nostrum. {orders}
+                    </Text>
+                  </div>
+                </IndexTable.Cell>
+                <IndexTable.Cell flush>
+                  <div className={styles.cell}>
+                    <Text as="span" numeric>
+                      Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                      Rerum quos iste ipsam, est incidunt aliquid, voluptatum
+                      sed delectus reiciendis itaque corrupti sequi magnam ab
+                      minus perferendis libero in quam nostrum. {amountSpent}
+                    </Text>
+                  </div>
                 </IndexTable.Cell>
               </IndexTable.Row>
             );
@@ -210,18 +258,20 @@ export default function App() {
 
   return (
     <Card>
-      <IndexTable
-        condensed={useBreakpoints().smDown}
-        onSelectionChange={handleSelectionChange}
-        selectedItemsCount={
-          allResourcesSelected ? "All" : selectedResources.length
-        }
-        resourceName={resourceName}
-        itemCount={rows.length}
-        headings={columnHeadings as IndexTableProps["headings"]}
-      >
-        {rowMarkup}
-      </IndexTable>
+      <div ref={tableContainerRef}>
+        <IndexTable
+          condensed={useBreakpoints().smDown}
+          onSelectionChange={handleSelectionChange}
+          selectedItemsCount={
+            allResourcesSelected ? "All" : selectedResources.length
+          }
+          resourceName={resourceName}
+          itemCount={rows.length}
+          headings={columnHeadings as IndexTableProps["headings"]}
+        >
+          {rowMarkup}
+        </IndexTable>
+      </div>
     </Card>
   );
 }

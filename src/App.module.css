@@ -1,0 +1,10 @@
+.subHeader {
+  filter: none !important;
+  text-wrap: wrap;
+}
+
+.cell {
+  max-width: 500px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}

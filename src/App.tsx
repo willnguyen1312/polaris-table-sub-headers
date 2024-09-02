@@ -6,7 +6,7 @@ import {
 } from "@shopify/polaris";
 import { faker } from "@faker-js/faker";
 import type { IndexTableRowProps, IndexTableProps } from "@shopify/polaris";
-import { Fragment, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { getSubHeaderColSpan } from "./helper";
 
 import styles from "./App.module.css";
@@ -31,6 +31,50 @@ interface CustomerGroup {
 interface Groups {
   [key: string]: CustomerGroup;
 }
+
+const SpecialCell = ({ children }: { children: ReactNode }) => {
+  const wrapperRef = useRef<HTMLParagraphElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const wrapper = wrapperRef.current;
+
+    const handleResize = () => {
+      if (wrapper) {
+        const { x } = wrapper.getBoundingClientRect();
+        const toRight = window.innerWidth - x;
+
+        setWidth(toRight - 12);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    handleResize();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  return (
+    <p
+      ref={wrapperRef}
+      style={{
+        width,
+        position: "absolute",
+        inset: 0,
+        visibility: "visible",
+        display: "flex",
+        alignItems: "center",
+        padding: 6,
+        backgroundColor: "var(--p-color-bg-surface-secondary)",
+      }}
+    >
+      {children}
+    </p>
+  );
+};
 
 export default function App() {
   const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -154,6 +198,8 @@ export default function App() {
       rows.findIndex((row) => row.id === customers[customers.length - 1].id),
     ];
 
+    const header = faker.lorem.words(25);
+
     return (
       <Fragment key={subheaderId}>
         <IndexTable.Row
@@ -171,7 +217,8 @@ export default function App() {
             className={styles.subHeader}
             id={subheaderId}
           >
-            {faker.lorem.words(25)}
+            {header}
+            <SpecialCell>{header}</SpecialCell>
           </IndexTable.Cell>
 
           <IndexTable.Cell colSpan={20} />

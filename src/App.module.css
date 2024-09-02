@@ -1,6 +1,10 @@
 .subHeader {
   filter: none !important;
   text-wrap: wrap;
+  position: relative;
+  visibility: hidden;
+  height: 1px;
+  background-color: var(--p-color-bg-surface-secondary);
 }
 
 .cell {
